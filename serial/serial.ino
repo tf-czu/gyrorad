@@ -1,27 +1,30 @@
 #include <BMSerial.h>
 #include<Wire.h>
 
-
 const unsigned char gyroSelectPins[] = { 7, 6, 5, 4 };
 const unsigned int NUM_GYROS = sizeof(gyroSelectPins)/sizeof(unsigned char); 
 
-BMSerial gps(2,3); 
 
-void setupGPS()
+class GPSSerial : public BMSerial
 {
-  Serial.begin( 9600 );
-  Serial.print( "Serial test ...\n" );
-  gps.begin( 9600 ); 
-}
+public:
+  GPSSerial() : BMSerial(2,3)
+  {
+    begin( 9600 );
+  }
 
-
-void loopGPS()
-{
-  int b;
-  b = gps.read(); 
-  if( b >= 0 )
-    Serial.write( b ); 
-}
+  void process()
+  {
+    int b;
+    b = read(); 
+    while( b >= 0 )
+    {
+      Serial.write( b ); 
+      b = read(); 
+    }
+  }  
+};
+GPSSerial gps;
 
 //**************************************************************
 
@@ -91,6 +94,7 @@ void loop()
 //  Serial.print(" | GyY = "); Serial.print(GyY);
 //  Serial.print(" | GyZ = "); Serial.println(GyZ);
   }
+  gps.process();
   delay(333);
 }
 
