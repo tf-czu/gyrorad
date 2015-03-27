@@ -21,9 +21,9 @@ I2C pins A4 (SDA), A5 (SCL)
 http://arduino.cc/en/reference/wire
 
 # Wiring ver0
-SCL - GREEN - A5
-3.3V - RED
-5V - BLUE
+GyroBoard: SCL - GREEN - A5, 5V - BLUE
+
+GPS: GND - BLACK, 3.3V - RED, TX-BLUE-pin2, RX-GREEN-pin3
 
 
 
