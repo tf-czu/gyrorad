@@ -15,3 +15,16 @@ https://www.dipmicro.com/store/GY521-MOD
 
 - data sheet
 http://www.invensense.com/mems/gyro/documents/PS-MPU-6000A-00v3.4.pdf
+
+# Arduino Uno
+I2C pins A4 (SDA), A5 (SCL)
+http://arduino.cc/en/reference/wire
+
+# Wiring ver0
+SCL - GREEN - A5
+3.3V - RED
+5V - BLUE
+
+
+
+

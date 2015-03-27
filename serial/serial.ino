@@ -1,6 +1,10 @@
 #include <BMSerial.h>
 #include<Wire.h>
 
+
+const unsigned char gyroSelectPins[] = { 7, 6, 5, 4 };
+const unsigned int NUM_GYROS = sizeof(gyroSelectPins)/sizeof(unsigned char); 
+
 BMSerial gps(2,3); 
 
 void setupGPS()
@@ -22,30 +26,42 @@ void loopGPS()
 //**************************************************************
 
 //const int MPU=0x68;  // I2C address of the MPU-6050
-const int MPU=0x69;  // I2C address of the MPU-6050
+const int MPU=0x69;  // I2C address of the MPU-6050 for AD0=1
 int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 
-#define SELECT_DEV1 7 
 
 void setup()
 {
-  pinMode( SELECT_DEV1, OUTPUT ); 
-  digitalWrite( SELECT_DEV1, 1); 
+  int i;
+  for( i = 0; i < NUM_GYROS; i++ )
+  {
+    pinMode( gyroSelectPins[i], OUTPUT ); 
+    digitalWrite( gyroSelectPins[i], 0 ); 
+  }
     
   Wire.begin();
-  Wire.beginTransmission(MPU);
-  Wire.write(0x6B);  // PWR_MGMT_1 register
-  Wire.write(0);     // set to zero (wakes up the MPU-6050)
-  Wire.endTransmission(true);
+  for( i = 0; i < NUM_GYROS; i++ )
+  {
+    digitalWrite( gyroSelectPins[i], 1 );  // select i-th gyro
+    delay(10);
+    Wire.beginTransmission(MPU);
+    Wire.write(0x6B);  // PWR_MGMT_1 register
+    Wire.write(0);     // set to zero (wakes up the MPU-6050)
+    Wire.endTransmission(true);
+    digitalWrite( gyroSelectPins[i], 0 ); // unselect
+    delay(10);
+  }
   
   
   Serial.begin( 9600 );
   Serial.print( "I2C test ...\n" );
 }
 
-void loop()
+void readIthGyro( int i )
 {
-Wire.beginTransmission(MPU);
+  digitalWrite( gyroSelectPins[i], 1 );  // select i-th gyro
+  delay(10);
+  Wire.beginTransmission(MPU);
   Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
   Wire.endTransmission(false);
   Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
@@ -56,13 +72,25 @@ Wire.beginTransmission(MPU);
   GyX=Wire.read()<<8|Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
   GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
   GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-  Serial.print("AcX = "); Serial.print(AcX);
-  Serial.print(" | AcY = "); Serial.print(AcY);
-  Serial.print(" | AcZ = "); Serial.println(AcZ);
+  digitalWrite( gyroSelectPins[i], 0 ); // unselect
+  delay(10);
+}
+
+void loop()
+{
+  int i;
+  for( i = 0; i < NUM_GYROS; i++ )
+  {
+    readIthGyro( i );
+    Serial.print( i ); Serial.print(": ");
+    Serial.print("AcX = "); Serial.print(AcX);
+    Serial.print(" | AcY = "); Serial.print(AcY);
+    Serial.print(" | AcZ = "); Serial.println(AcZ);
 //  Serial.print(" | Tmp = "); Serial.print(Tmp/340.00+36.53);  //equation for temperature in degrees C from datasheet
 //  Serial.print(" | GyX = "); Serial.print(GyX);
 //  Serial.print(" | GyY = "); Serial.print(GyY);
 //  Serial.print(" | GyZ = "); Serial.println(GyZ);
+  }
   delay(333);
 }
 
