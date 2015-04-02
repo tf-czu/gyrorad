@@ -18,8 +18,14 @@ def splitter( data, selected ):
     data = stripHeader( data )
     result = ""
     for line in data.split('\n'):
-        if line.startswith( selected ):
-            result += line + '\n'
+        if len(line.split(',')) >= 9:
+            if line[:2] not in ['0,','1,','2,','3,']:
+                parts = line.split(',')
+                s = parts[-9]
+                if len(s) > 0:
+                    line = parts[-9][-1] + ',' + ",".join( parts[-8:] )
+            if line.startswith( selected ) and '*' not in line:
+                result += line.strip() + '\n'
     return result
 
 
