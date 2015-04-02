@@ -96,7 +96,7 @@ void loop()
     Serial.print(","); Serial.print(GyY);
     Serial.print(","); Serial.println(GyZ);
   }
-  //gps.process();
+  gps.process();
   //delay(50);
 }
 
