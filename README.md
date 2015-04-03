@@ -26,5 +26,8 @@ GyroBoard: SCL - GREEN - A5, 5V - BLUE
 GPS: GND - BLACK, 3.3V - RED, TX-BLUE-pin2, RX-GREEN-pin3
 
 
+# External Arudino Libraries
 
+BMSerial is used from project FireAnt from Orion Robotics:
+http://downloads.orionrobotics.com/downloads/code/arduino.zip
 
