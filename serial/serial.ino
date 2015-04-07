@@ -4,6 +4,8 @@
 const unsigned char gyroSelectPins[] = { 7, 6, 5, 4 };
 const unsigned int NUM_GYROS = sizeof(gyroSelectPins)/sizeof(unsigned char); 
 
+#define GPS_SEPARATOR_BEGIN 0x2
+#define GPS_SEPARATOR_END   0x3
 
 class GPSSerial : public BMSerial
 {
@@ -96,7 +98,10 @@ void loop()
     Serial.print(","); Serial.print(GyY);
     Serial.print(","); Serial.println(GyZ);
   }
+  Serial.write( GPS_SEPARATOR_BEGIN );
   gps.process();
+  Serial.write( GPS_SEPARATOR_END );
+  
   //delay(50);
 }
 
