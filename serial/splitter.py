@@ -59,11 +59,48 @@ def splitter( data, selected ):
     return result
 
 
+
+def checksum( s ):
+    sum = 0
+    for ch in s:
+        sum ^= ord(ch)
+    return "%02X" % (sum)
+
+def ddmm2ddd( s ):
+    num,frac = ('0000' + s).split('.')
+    d = float(num[-2:]+'.'+frac)/60.0 + float(num[-4:-2]) 
+    return d
+
+def parseNMEA( data ):
+    ret = []
+    for line in data.replace('\r','\n').split('\n'):
+        if '$' in line and '*' in line.split('$')[-1]:
+            s = line.split('$')[-1].split('*')
+            if len(s) > 1 and len(s[1]) >= 2:
+                if checksum(s[0]) == s[1][:2]:
+                    if s[0].startswith("GPRMC"):
+                        s = s[0].split(',')[:7]
+                        if len(s) >= 7 and s[2] == 'A' and s[4] == 'N' and s[6] == 'E':
+                            ret.append( (s[1], ddmm2ddd(s[3]), ddmm2ddd(s[5])) )
+                    elif s[0].startswith("GPGGA"):
+                        s = s[0].split(',')[:6]
+                        if len(s) >= 6 and s[3] == 'N' and s[5] == 'E':
+                            ret.append( (s[1], ddmm2ddd(s[2]), ddmm2ddd(s[4])) )
+    return ret
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print __doc__
         sys.exit(2)
-    print splitter( open(sys.argv[1], "rb").read(), selected=sys.argv[2].upper() )
+    selected=sys.argv[2].upper()
+    data = splitter( open(sys.argv[1], "rb").read(), selected=selected )
+    if selected == "GPS":
+        print data
+        print "------------------"
+        print parseNMEA( data )
+    else:
+        print data
 
 # vim: expandtab sw=4 ts=4 
 
