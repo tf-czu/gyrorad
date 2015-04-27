@@ -23,19 +23,30 @@ def splitter( data, selected ):
     data = stripHeader( data )
     result = ""
     for line in data.split('\n'):
-        if selectedGPS:
-            if GPS_SEPARATOR_BEGIN in line:
-                if GPS_SEPARATOR_END in line:
+        if GPS_SEPARATOR_BEGIN in line:
+            if GPS_SEPARATOR_END in line:
+                if selectedGPS:
                     result += line.split(GPS_SEPARATOR_BEGIN)[1].split(GPS_SEPARATOR_END)[0]
-                    gpsSection = False
                 else:
-                    result += line.split(GPS_SEPARATOR_BEGIN)[1]
-                    gpsSection = True
-            elif GPS_SEPARATOR_END in line:
-                result += line.split(GPS_SEPARATOR_END)[0]
+                    line = line.split(GPS_SEPARATOR_BEGIN)[0] + line.split(GPS_SEPARATOR_END)[1]
                 gpsSection = False
-            elif gpsSection:
+            else:
+                if selectedGPS:
+                    result += line.split(GPS_SEPARATOR_BEGIN)[1]
+                else:
+                    line = line.split(GPS_SEPARATOR_BEGIN)[0]
+                gpsSection = True
+        elif GPS_SEPARATOR_END in line:
+            if selectedGPS:
+                result += line.split(GPS_SEPARATOR_END)[0]
+            else:
+                line = line.split(GPS_SEPARATOR_END)[1]
+            gpsSection = False
+        elif gpsSection:
+            if selectedGPS:
                 result += line.strip() + '\n'
+            else:
+                line = ""
             
         if len(line.split(',')) >= 9:
             if line[:2] not in ['0,','1,','2,','3,']:
